@@ -18,7 +18,7 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             background-color: var(--background-color);
             color: var(--text-color);
             display: flex;
@@ -39,144 +39,103 @@
             text-align: center;
         }
 
-        h1 {
-            color: var(--primary-color);
-            margin-bottom: 1.5rem;
-            font-size: 1.8rem;
-        }
-
-        .logo-display {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 1rem;
-            display: block;
-        }
+        .logo-display { width: 60px; margin: 0 auto 1rem; }
 
         .result-box {
-            background-color: var(--background-color);
+            background-color: #ecf0f1;
             padding: 1.5rem;
             border-radius: 10px;
             margin-bottom: 1.5rem;
         }
 
-        .label {
-            font-size: 0.9rem;
-            color: #7f8c8d;
-            margin-bottom: 0.5rem;
-        }
-
-        .amount {
+        /* Champ du solde modifiable */
+        #soldeAffiche {
             font-size: 2.5rem;
             font-weight: bold;
             color: var(--primary-color);
-        }
-
-        .settings {
-            text-align: left;
-            border-top: 1px solid var(--border-color);
-            padding-top: 1.5rem;
-        }
-
-        .input-group {
-            margin-bottom: 1rem;
-        }
-
-        label {
-            display: block;
-            font-size: 0.85rem;
-            margin-bottom: 0.3rem;
-            font-weight: 600;
-        }
-
-        input {
+            background: transparent;
+            border: none;
+            text-align: center;
             width: 100%;
-            padding: 0.8rem;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 1rem;
+            outline: none;
         }
 
-        .info {
-            font-size: 0.8rem;
-            color: #95a5a6;
-            margin-top: 1rem;
-            font-style: italic;
+        .btn-save {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
         }
+
+        .settings { text-align: left; border-top: 1px solid var(--border-color); padding-top: 1rem; }
+        .input-group { margin-bottom: 1rem; }
+        label { display: block; font-size: 0.85rem; margin-bottom: 0.3rem; font-weight: 600; }
+        input { width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <img src="https://i49.servimg.com/u/f49/11/31/89/70/gemini10.png" alt="Logo" class="logo-display">
-    <h1>Mes Économies</h1>
-    
     <div class="result-box">
-        <div class="label">Solde actuel estimé</div>
-        <div class="amount" id="soldeAffiche">0 €</div>
+        <label>Solde actuel (modifiable)</label>
+        <input type="text" id="soldeAffiche" value="0">
+        <button class="btn-save" onclick="sauvegarderManuel()">Enregistrer ce montant</button>
     </div>
 
     <div class="settings">
         <div class="input-group">
-            <label for="montantInitial">Solde au départ (€)</label>
-            <input type="number" id="montantInitial" value="1000">
+            <label>Économie mensuelle (€)</label>
+            <input type="number" id="ajoutMensuel" value="100" oninput="calculerAuto()">
         </div>
         <div class="input-group">
-            <label for="ajoutMensuel">Ajout chaque mois (€)</label>
-            <input type="number" id="ajoutMensuel" value="100">
-        </div>
-        <div class="input-group">
-            <label for="dateDepart">Date du premier versement</label>
-            <input type="date" id="dateDepart" value="2026-01-01">
+            <label>Dernière mise à jour</label>
+            <input type="date" id="dateDerniereMaj" oninput="calculerAuto()">
         </div>
     </div>
-
-    <div class="info" id="detailCalcul"></div>
 </div>
 
 <script>
-    const inputs = ['montantInitial', 'ajoutMensuel', 'dateDepart'];
-
-    // Charger les données sauvegardées
-    function chargerSauvegarde() {
-        inputs.forEach(id => {
-            const sauvegarde = localStorage.getItem(id);
-            if (sauvegarde) document.getElementById(id).value = sauvegarde;
-        });
+    // Au chargement
+    window.onload = function() {
+        if(localStorage.getItem('monSolde')) {
+            document.getElementById('soldeAffiche').value = localStorage.getItem('monSolde') + " €";
+            document.getElementById('ajoutMensuel').value = localStorage.getItem('monAjout') || 100;
+            document.getElementById('dateDerniereMaj').value = localStorage.getItem('maDate') || new Date().toISOString().split('T')[0];
+        }
+        calculerAuto();
     }
 
-    function calculer() {
-        const initial = parseFloat(document.getElementById('montantInitial').value) || 0;
-        const mensuel = parseFloat(document.getElementById('ajoutMensuel').value) || 0;
-        const debut = new Array(document.getElementById('dateDepart').value);
+    function sauvegarderManuel() {
+        let valeur = parseFloat(document.getElementById('soldeAffiche').value);
+        if (isNaN(valeur)) return;
         
-        // Sauvegarde immédiate
-        inputs.forEach(id => localStorage.setItem(id, document.getElementById(id).value));
-
-        const dateDebut = new Date(document.getElementById('dateDepart').value);
-        const dateAujourdhui = new Date();
-
-        // Calcul du nombre de mois écoulés
-        let mois = (dateAujourdhui.getFullYear() - dateDebut.getFullYear()) * 12;
-        mois += dateAujourdhui.getMonth() - dateDebut.getMonth();
-
-        // On ne compte pas de mois négatif si la date est dans le futur
-        if (mois < 0) mois = 0;
-
-        const total = initial + (mois * mensuel);
-        
-        document.getElementById('soldeAffiche').innerText = total.toLocaleString('fr-FR') + " €";
-        document.getElementById('detailCalcul').innerText = `Calculé sur ${mois} mois écoulés.`;
+        localStorage.setItem('monSolde', valeur);
+        localStorage.setItem('maDate', new Date().toISOString().split('T')[0]);
+        document.getElementById('dateDerniereMaj').value = new Date().toISOString().split('T')[0];
+        alert("Montant enregistré ! Les prochains calculs partiront d'ici.");
+        calculerAuto();
     }
 
-    // Écouter les changements
-    inputs.forEach(id => {
-        document.getElementById(id).addEventListener('input', calculer);
-    });
+    function calculerAuto() {
+        let soldeBase = parseFloat(localStorage.getItem('monSolde')) || 0;
+        let mensuel = parseFloat(document.getElementById('ajoutMensuel').value) || 0;
+        let dateMaj = new Date(document.getElementById('dateDerniereMaj').value);
+        let aujourdhui = new Date();
 
-    // Lancement
-    chargerSauvegarde();
-    calculer();
+        let diffMois = (aujourdhui.getFullYear() - dateMaj.getFullYear()) * 12 + (aujourdhui.getMonth() - dateMaj.getMonth());
+        if (diffMois < 0) diffMois = 0;
+
+        let total = soldeBase + (diffMois * mensuel);
+        document.getElementById('soldeAffiche').value = total + " €";
+        
+        // Sauvegarde des réglages (mais pas du solde calculé)
+        localStorage.setItem('monAjout', mensuel);
+    }
 </script>
 
 </body>
