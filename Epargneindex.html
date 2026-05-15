@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Simulateur de Compte Évolutif</title>
+    <style>
+        :root {
+            --primary-color: #2ecc71;
+            --background-color: #f5f7fa;
+            --card-color: #ffffff;
+            --text-color: #2c3e50;
+            --border-color: #dcdde1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: var(--card-color);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        .balance-title {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .balance-amount {
+            font-size: 2.3rem;
+            font-weight: bold;
+        }
+
+        .settings-panel {
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+            text-align: left;
+        }
+
+        .settings-title {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #7f8c8d;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            color: var(--text-color);
+            box-sizing: border-box;
+            background-color: #fafbfc;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Mon Solde Estimé</h1>
+        
+        <div class="balance-card">
+            <div class="balance-title">Solde Actuel Automatique</div>
+            <div class="balance-amount" id="solde-affiche">0,00 €</div>
+        </div>
+
+        <div class="settings-panel">
+            <div class="settings-title">Configuration du compte</div>
+            
+            <div class="form-group">
+                <label for="input-montant">Montant initial (€)</label>
+                <input type="number" id="input-montant" value="1000">
+            </div>
+
+            <div class="form-group">
+                <label for="input-date">Date du montant initial</label>
+                <input type="month" id="input-date" value="2026-01">
+            </div>
+
+            <div class="form-group">
+                <label for="input-ajout">Ajout mensuel (€)</label>
+                <input type="number" id="input-ajout" value="100">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sélection des éléments HTML
+        const inputMontant = document.getElementById('input-montant');
+        const inputDate = document.getElementById('input-date');
+        const inputAjout = document.getElementById('input-ajout');
+        const soldeAffiche = document.getElementById('solde-affiche');
+
+        // Charger les données sauvegardées ou mettre des valeurs par défaut
+        if (localStorage.getItem('banque_montant')) {
+            inputMontant.value = localStorage.getItem('banque_montant');
+            inputDate.value = localStorage.getItem('banque_date');
+            inputAjout.value = localStorage.getItem('banque_ajout');
+        } else {
+            // Valeurs par défaut si première ouverture (Mai 2026 par exemple)
+            inputMontant.value = "1000";
+            inputDate.value = "2026-05";
+            inputAjout.value = "100";
+        }
+
+        function recalculerTout() {
+            const montantInitial = parseFloat(inputMontant.value) || 0;
+            const ajoutMensuel = parseFloat(inputAjout.value) || 0;
+            const dateSelectionnee = inputDate.value; // Format "AAAA-MM"
+
+            if (!dateSelectionnee) return;
+
+            // Découpage de la date choisie
+            const [anneePart, moisPart] = dateSelectionnee.split('-');
+            const dateDebut = new Date(parseInt(anneePart), parseInt(moisPart) - 1, 1);
+            const dateActuelle = new Date();
+
+            // Calcul des mois écoulés
+            let moisEcoules = (dateActuelle.getFullYear() - dateDebut.getFullYear()) * 12;
+            moisEcoules += dateActuelle.getMonth() - dateDebut.getMonth();
+
+            if (moisEcoules < 0) moisEcoules = 0;
+
+            // Calcul du solde final
+            const soldeTotal = montantInitial + (moisEcoules * ajoutMensuel);
+
+            // Mise à jour de l'affichage
+            soldeAffiche.innerText = soldeTotal.toLocaleString('fr-FR', { minimumFractionDigits: 2 }) + ' €';
+
+            // Sauvegarde automatique des réglages dans le navigateur
+            localStorage.setItem('banque_montant', inputMontant.value);
+            localStorage.setItem('banque_date', inputDate.value);
+            localStorage.setItem('banque_ajout', inputAjout.value);
+        }
+
+        // Écouter les changements sur les cases de saisie pour recalculer en direct 
+        inputMontant.addEventListener('input', recalculerTout);
+        inputDate.addEventListener('change', recalculerTout);
+        inputAjout.addEventListener('input', recalculerTout);
+
+        // Lancement au chargement de la page
+        recalculerTout();
+    </script>
+
+</body>
+</html>
