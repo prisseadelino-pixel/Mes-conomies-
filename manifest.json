@@ -1,0 +1,16 @@
+{
+  "name": "Mon Budget Personnel",
+  "short_name": "Mon Budget",
+  "description": "Mon tableau de budget interactif et autonome",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#121824",
+  "theme_color": "#1c2434",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
