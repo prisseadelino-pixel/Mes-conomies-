@@ -3,103 +3,476 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mes Économies</title>
-    
-    <link rel="icon" type="image/png" href="https://i49.servimg.com/u/f49/11/31/89/70/gemini10.png">
-    <link rel="apple-touch-icon" href="https://i49.servimg.com/u/f49/11/31/89/70/gemini10.png">
-
+    <title>Mon Budget Personnel Interactif</title>
     <style>
-        :root { --primary: #2ecc71; --bg: #f5f7fa; --txt: #2c3e50; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--txt); display: flex; justify-content: center; padding: 20px; }
-        .container { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        .logo { width: 60px; margin-bottom: 1rem; }
-        .result-box { background: #ecf0f1; padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem; }
-        #soldeAffiche { font-size: 2.5rem; font-weight: bold; color: var(--primary); border: none; background: none; text-align: center; width: 100%; outline: none; }
-        .btn { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; }
-        .settings { text-align: left; border-top: 1px solid #ddd; margin-top: 1.5rem; padding-top: 1rem; }
-        .input-group { margin-bottom: 1rem; }
-        label { display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; }
-        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        #status { font-size: 0.8rem; margin-top: 10px; color: #7f8c8d; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #121824;
+            color: #e2e8f0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 950px;
+            background: #1c2434;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            text-align: center;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 850px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: #242f44;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #2d3a54;
+        }
+
+        .card-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-add {
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .btn-add:hover {
+            background: #2563eb;
+        }
+
+        .btn-delete {
+            background: transparent;
+            color: #ef4444;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0 4px;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .btn-delete:hover {
+            opacity: 1;
+        }
+
+        .input-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .input-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .label-input {
+            flex: 1;
+            background: transparent;
+            border: 1px dashed transparent;
+            color: #cbd5e1;
+            font-size: 14px;
+            padding: 4px;
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .label-input:hover {
+            border-color: #4b5563;
+            background: #1e293b;
+        }
+
+        .label-input:focus {
+            border-color: #3b82f6;
+            background: #121824;
+            color: #fff;
+        }
+
+        .amount-input {
+            width: 110px;
+            background: #121824;
+            border: 1px solid #3b4b6b;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-align: right;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .amount-input:focus {
+            border-color: #3b82f6;
+        }
+
+        .resume-block {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .resume-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #2d3a54;
+        }
+
+        .resume-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-top: 6px;
+        }
+
+        .resume-label {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .resume-value {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .resume-value.revenus { color: #10b981; }
+        .resume-value.depenses { color: #ef4444; }
+        .resume-value.epargne { color: #3b82f6; }
+        .resume-value.liquidites { font-size: 20px; color: #f59e0b; }
+
+        .charts-wrapper {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            gap: 16px;
+            margin-top: 10px;
+        }
+
+        .chart-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            width: 140px;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chart-center-text {
+            position: absolute;
+            text-align: center;
+            width: 80px;
+        }
+
+        .chart-center-text .amount {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chart-center-text .label {
+            font-size: 10px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .chart-legend-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-top: 8px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        circle {
+            transition: stroke-dasharray 0.3s ease, stroke-dashoffset 0.3s ease;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <img src="https://i49.servimg.com/u/f49/11/31/89/70/gemini10.png" class="logo">
-    <div class="result-box">
-        <label>SOLDE ACTUEL ESTIMÉ</label>
-        <input type="text" id="soldeAffiche" value="0 €">
-        <button class="btn" onclick="sauvegarderVersGoogle()">ENREGISTRER SUR GOOGLE</button>
-        <div id="status"></div>
-    </div>
+    <h1>Mon Budget Personnel Interactif</h1>
 
-    <div class="settings">
-        <div class="input-group">
-            <label>ÉCONOMIE MENSUELLE (€)</label>
-            <input type="number" id="ajoutMensuel" value="100" oninput="calculerAuto()">
+    <div class="dashboard-grid">
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- CARD REVENUS -->
+            <div class="card">
+                <div class="card-header-flex">
+                    <div class="card-title">Sources de Revenus (€)</div>
+                    <button class="btn-add" onclick="ajouterLigne('revenus-list', 'rev-amount', 'Nouveau revenu', 0)">+</button>
+                </div>
+                <div id="revenus-list" class="input-list"></div>
+            </div>
+
+            <!-- CARD DÉPENSES -->
+            <div class="card">
+                <div class="card-header-flex">
+                    <div class="card-title">Dépenses (€)</div>
+                    <button class="btn-add" onclick="ajouterLigne('depenses-list', 'dep-amount', 'Nouvelle dépense', 0)">+</button>
+                </div>
+                <div id="depenses-list" class="input-list"></div>
+            </div>
+
+            <!-- CARD ÉPARGNÉ -->
+            <div class="card">
+                <div class="card-header-flex">
+                    <div class="card-title">Capital mis de côté / Épargne Totale (€)</div>
+                    <button class="btn-add" onclick="ajouterLigne('epargne-list', 'ep-amount', 'Nouveau compte', 0)">+</button>
+                </div>
+                <div id="epargne-list" class="input-list"></div>
+            </div>
         </div>
-        <div class="input-group">
-            <label>DATE DU DERNIER POINT</label>
-            <input type="date" id="dateDerniereMaj" oninput="calculerAuto()">
+
+        <!-- RÉSUMÉ & GRAPHES -->
+        <div class="card" style="display: flex; flex-direction: column; justify-content: flex-start;">
+            <div>
+                <div class="card-title" style="margin-bottom: 16px;">Résumé du Budget</div>
+                <div class="resume-block">
+                    <div class="resume-row">
+                        <span class="resume-label">REVENU MENSUEL TOTAL</span>
+                        <span class="resume-value revenus" id="resRevenus">0 €</span>
+                    </div>
+                    <div class="resume-row">
+                        <span class="resume-label">DÉPENSES MENSUELLES TOTALES</span>
+                        <span class="resume-value depenses" id="resDepenses">0 €</span>
+                    </div>
+                    <div class="resume-row">
+                        <span class="resume-label" style="font-weight: 600; color: #fff;">LIQUIDITÉS (RESTE DU MOIS)</span>
+                        <span class="resume-value liquidites" id="resLiquidites">0 €</span>
+                    </div>
+                    <div class="resume-row" style="margin-top: 10px; border-top: 1px dashed #3b4b6b; padding-top: 10px;">
+                        <span class="resume-label">CAPITAL ÉPARGNÉ TOTAL (INDICATIF)</span>
+                        <span class="resume-value epargne" id="resEpargne">0 €</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-wrapper">
+                <div class="chart-box">
+                    <div class="chart-container">
+                        <svg width="120" height="120" viewBox="0 0 42 42">
+                            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#121824" stroke-width="4.5"></circle>
+                            <circle id="chart1Depenses" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#ef4444" stroke-width="4.5" stroke-dasharray="0 100" stroke-dashoffset="25"></circle>
+                            <circle id="chart1Reste" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#10b981" stroke-width="4.5" stroke-dasharray="0 100" stroke-dashoffset="25"></circle>
+                        </svg>
+                        <div class="chart-center-text">
+                            <div class="amount" id="centerChart1">0 €</div>
+                            <div class="label">Reste</div>
+                        </div>
+                    </div>
+                    <div class="chart-legend-title">Dépenses / Revenus</div>
+                </div>
+
+                <div class="chart-box">
+                    <div class="chart-container">
+                        <svg width="120" height="120" viewBox="0 0 42 42">
+                            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#121824" stroke-width="4.5"></circle>
+                            <circle id="chart2Epargne" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#3b82f6" stroke-width="4.5" stroke-dasharray="100 0" stroke-dashoffset="25"></circle>
+                        </svg>
+                        <div class="chart-center-text">
+                            <div class="amount" id="centerChart2">0 €</div>
+                            <div class="label">Totalisé</div>
+                        </div>
+                    </div>
+                    <div class="chart-legend-title">Capital Épargné</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    // TON LIEN GOOGLE SCRIPT RECUPÉRÉ SUR TA CAPTURE
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwGYxsbtRcfr34S8B-hv9yupQW2OP6N-teWYhf8hEWDMQFiKq6GmR-K4I3rFd45CSRI/exec';
+    // Valeurs par défaut initiales si aucun historique n'est stocké
+    const defautBudget = {
+        revenus: [
+            { label: "Source de revenu 1", amount: 1650 },
+            { label: "Source de revenu 3", amount: 0 }
+        ],
+        depenses: [
+            { label: "Courses", amount: 600 },
+            { label: "Budget repas Boulot", amount: 50 },
+            { label: "Autres dépenses", amount: 0 }
+        ],
+        epargne: [
+            { label: "Livret Developpement Durable", amount: 7796.01 }
+        ]
+    };
 
-    window.onload = function() {
-        // Charger les données locales
-        const soldeLocal = localStorage.getItem('monSolde') || "0";
-        document.getElementById('soldeAffiche').value = soldeLocal + " €";
-        document.getElementById('ajoutMensuel').value = localStorage.getItem('monAjout') || 100;
-        document.getElementById('dateDerniereMaj').value = localStorage.getItem('maDate') || new Date().toISOString().split('T')[0];
-        calculerAuto();
+    function chargerDonnees() {
+        const sauvegardes = localStorage.getItem('monBudgetInteractifData');
+        let data = sauvegardes ? JSON.parse(sauvegardes) : defautBudget;
+
+        document.getElementById('revenus-list').innerHTML = '';
+        document.getElementById('depenses-list').innerHTML = '';
+        document.getElementById('epargne-list').innerHTML = '';
+
+        data.revenus.forEach(item => ajouterLigne('revenus-list', 'rev-amount', item.label, item.amount, false));
+        data.depenses.forEach(item => ajouterLigne('depenses-list', 'dep-amount', item.label, item.amount, false));
+        data.epargne.forEach(item => ajouterLigne('epargne-list', 'ep-amount', item.label, item.amount, false));
+
+        calculerBudget(false);
     }
 
-    function calculerAuto() {
-        let soldeBase = parseFloat(localStorage.getItem('monSolde')) || 0;
-        let mensuel = parseFloat(document.getElementById('ajoutMensuel').value) || 0;
-        let dateMaj = new Date(document.getElementById('dateDerniereMaj').value);
-        let aujourdhui = new Date();
+    function sauvegarderDonnees() {
+        const data = { revenus: [], depenses: [], epargne: [] };
 
-        let diffMois = (aujourdhui.getFullYear() - dateMaj.getFullYear()) * 12 + (aujourdhui.getMonth() - dateMaj.getMonth());
-        if (diffMois < 0) diffMois = 0;
-
-        let total = soldeBase + (diffMois * mensuel);
-        document.getElementById('soldeAffiche').value = total + " €";
-        localStorage.setItem('monAjout', mensuel);
-    }
-
-    function sauvegarderVersGoogle() {
-        const btn = document.querySelector('.btn');
-        const status = document.getElementById('status');
-        let valeur = parseFloat(document.getElementById('soldeAffiche').value);
-        let mensuel = document.getElementById('ajoutMensuel').value;
-        let date = new Date().toISOString().split('T')[0];
-
-        btn.innerText = "Envoi en cours...";
-        status.innerText = "Connexion à Google Drive...";
-
-        // Sauvegarde locale d'abord
-        localStorage.setItem('monSolde', valeur);
-        localStorage.setItem('maDate', date);
-        document.getElementById('dateDerniereMaj').value = date;
-
-        // Envoi vers Google Sheets
-        fetch(`${scriptURL}?solde=${valeur}&mensuel=${mensuel}&date=${date}`)
-        .then(response => {
-            btn.innerText = "ENREGISTRER SUR GOOGLE";
-            status.innerText = "✅ Sauvegardé sur ton compte Google !";
-            setTimeout(() => { status.innerText = ""; }, 3000);
-        })
-        .catch(error => {
-            btn.innerText = "ENREGISTRER SUR GOOGLE";
-            status.innerText = "❌ Erreur réseau, mais gardé en mémoire locale.";
+        document.querySelectorAll('#revenus-list .input-group').forEach(row => {
+            data.revenus.push({
+                label: row.querySelector('.label-input').value,
+                amount: parseFloat(row.querySelector('.amount-input').value) || 0
+            });
         });
+
+        document.querySelectorAll('#depenses-list .input-group').forEach(row => {
+            data.depenses.push({
+                label: row.querySelector('.label-input').value,
+                amount: parseFloat(row.querySelector('.amount-input').value) || 0
+            });
+        });
+
+        document.querySelectorAll('#epargne-list .input-group').forEach(row => {
+            data.epargne.push({
+                label: row.querySelector('.label-input').value,
+                amount: parseFloat(row.querySelector('.amount-input').value) || 0
+            });
+        });
+
+        localStorage.setItem('monBudgetInteractifData', JSON.stringify(data));
     }
+
+    function ajouterLigne(containerId, inputClass, label, amount, declencherSauvegarde = true) {
+        const container = document.getElementById(containerId);
+        const div = document.createElement('div');
+        div.className = 'input-group';
+        
+        div.innerHTML = `
+            <input type="text" class="label-input" value="${label}" oninput="calculerBudget(true)">
+            <input type="number" class="amount-input ${inputClass}" value="${amount}" oninput="calculerBudget(true)">
+            <button class="btn-delete" onclick="supprimerLigne(this)">×</button>
+        `;
+        
+        container.appendChild(div);
+        if (declencherSauvegarde) {
+            calculerBudget(true);
+        }
+    }
+
+    function supprimerLigne(button) {
+        button.parentElement.remove();
+        calculerBudget(true);
+    }
+
+    function calculerBudget(sauvegarder = true) {
+        let totalRevenus = 0;
+        document.querySelectorAll('.rev-amount').forEach(input => { totalRevenus += parseFloat(input.value) || 0; });
+
+        let totalDepenses = 0;
+        document.querySelectorAll('.dep-amount').forEach(input => { totalDepenses += parseFloat(input.value) || 0; });
+
+        let totalEpargne = 0;
+        document.querySelectorAll('.ep-amount').forEach(input => { totalEpargne += parseFloat(input.value) || 0; });
+
+        // Calcul corrigé : l'éparge globale n'est pas déduite
+        const liquidites = totalRevenus - totalDepenses;
+
+        document.getElementById('resRevenus').innerText = totalRevenus.toLocaleString('fr-FR') + ' €';
+        document.getElementById('resDepenses').innerText = totalDepenses.toLocaleString('fr-FR') + ' €';
+        document.getElementById('resEpargne').innerText = totalEpargne.toLocaleString('fr-FR') + ' €';
+        document.getElementById('resLiquidites').innerText = liquidites.toLocaleString('fr-FR') + ' €';
+
+        document.getElementById('centerChart1').innerText = liquidites.toLocaleString('fr-FR') + ' €';
+        document.getElementById('centerChart2').innerText = totalEpargne.toLocaleString('fr-FR') + ' €';
+
+        if (totalRevenus > 0) {
+            const pctDep = (totalDepenses / totalRevenus) * 100;
+            const pctReste = liquidites > 0 ? (liquidites / totalRevenus) * 100 : 0;
+
+            document.getElementById('chart1Depenses').setAttribute('stroke-dasharray', `${pctDep} ${100 - pctDep}`);
+            document.getElementById('chart1Reste').setAttribute('stroke-dasharray', `${pctReste} ${100 - pctReste}`);
+            document.getElementById('chart1Reste').setAttribute('stroke-dashoffset', 25 - pctDep);
+        } else {
+            document.getElementById('chart1Depenses').setAttribute('stroke-dasharray', '0 100');
+            document.getElementById('chart1Reste').setAttribute('stroke-dasharray', '0 100');
+        }
+
+        if (sauvegarder) {
+            sauvegarderDonnees();
+        }
+    }
+
+    window.onload = chargerDonnees;
 </script>
 
 </body>
