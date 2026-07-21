@@ -475,6 +475,43 @@
 
     window.onload = chargerDonnees;
 </script>
+<!-- Scripts Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<script>
+  // Configuration Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyBd3-uJqgCafCXbyo2UekQCbYP3FaSwYlE",
+    authDomain: "mes-economies-98c27.firebaseapp.com",
+    projectId: "mes-economies-98c27",
+    storageBucket: "mes-economies-98c27.firebasestorage.app",
+    messagingSenderId: "802984844133",
+    appId: "1:802984844133:web:625c3f9b84a8bc3ff7df8c",
+    measurementId: "G-3CERVXG13E"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+  const budgetDocRef = db.collection("budgets").doc("mon_budget");
+
+  // Envoi vers Firebase lors des sauvegardes
+  function saveToFirebase(data) {
+    budgetDocRef.set(data, { merge: true })
+      .then(() => console.log("Synchro réussie !"))
+      .catch((err) => console.error("Erreur synchro :", err));
+  }
+
+  // Écoute en direct des changements
+  budgetDocRef.onSnapshot((doc) => {
+    if (doc.exists) {
+      const data = doc.data();
+      if (typeof updateUIFromData === "function") {
+        updateUIFromData(data);
+      }
+    }
+  });
+</script>
 
 </body>
 </html>
