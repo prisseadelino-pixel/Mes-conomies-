@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Budget Personnel Interactif</title>
+    <!-- Librairie pour la génération PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -32,13 +34,43 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
 
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
         h1 {
             font-size: 20px;
             font-weight: 600;
-            margin-bottom: 24px;
-            text-align: center;
             color: #fff;
             letter-spacing: 0.5px;
+        }
+
+        .btn-pdf {
+            background: #10b981;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn-pdf:hover {
+            background: #059669;
+        }
+
+        .btn-pdf:active {
+            transform: scale(0.98);
         }
 
         .dashboard-grid {
@@ -259,12 +291,22 @@
         circle {
             transition: stroke-dasharray 0.3s ease, stroke-dashoffset 0.3s ease;
         }
+
+        /* Classe temporaire masquant les boutons lors de l'impression PDF */
+        .pdf-export-mode .btn-add,
+        .pdf-export-mode .btn-delete,
+        .pdf-export-mode .btn-pdf {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Mon Budget Personnel Interactif</h1>
+<div class="container" id="budget-container">
+    <div class="header-actions">
+        <h1>Mon Budget Personnel Interactif</h1>
+        <button class="btn-pdf" onclick="exporterPDF()">📄 Exporter en PDF</button>
+    </div>
 
     <div class="dashboard-grid">
         <div style="display: flex; flex-direction: column; gap: 20px;">
@@ -417,7 +459,6 @@
 
         if (data.revenus) data.revenus.forEach(item => ajouterLigne('revenus-list', 'rev-amount', item.label, item.amount, false));
         
-        // Rétrocompatibilité avec l'ancienne version si depensesFixes/Variables n'existent pas encore
         if (data.depensesFixes) {
             data.depensesFixes.forEach(item => ajouterLigne('depenses-fixes-list', 'dep-fixe-amount', item.label, item.amount, false));
         } else if (data.depenses) {
@@ -534,6 +575,26 @@
         if (sauvegarder) {
             sauvegarderDonnees();
         }
+    }
+
+    // Fonction de génération PDF
+    function exporterPDF() {
+        const element = document.getElementById('budget-container');
+        
+        // Masquer temporairement les boutons pour un rendu PDF plus propre
+        element.classList.add('pdf-export-mode');
+
+        const opt = {
+            margin:       10,
+            filename:     'Mon_Budget_Personnel.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            element.classList.remove('pdf-export-mode');
+        });
     }
 
     budgetDocRef.onSnapshot((doc) => {
