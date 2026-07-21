@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Budget Personnel Interactif</title>
@@ -354,8 +354,26 @@
     </div>
 </div>
 
+<!-- Scripts Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
 <script>
-    // Valeurs par défaut initiales si aucun historique n'est stocké
+    // Configuration Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBd3-uJqgCafCXbyo2UekQCbYP3FaSwYlE",
+      authDomain: "mes-economies-98c27.firebaseapp.com",
+      projectId: "mes-economies-98c27",
+      storageBucket: "mes-economies-98c27.firebasestorage.app",
+      messagingSenderId: "802984844133",
+      appId: "1:802984844133:web:625c3f9b84a8bc3ff7df8c",
+      measurementId: "G-3CERVXG13E"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const budgetDocRef = db.collection("budgets").doc("mon_budget");
+
     const defautBudget = {
         revenus: [
             { label: "Source de revenu 1", amount: 1650 },
@@ -371,17 +389,16 @@
         ]
     };
 
-    function chargerDonnees() {
-        const sauvegardes = localStorage.getItem('monBudgetInteractifData');
-        let data = sauvegardes ? JSON.parse(sauvegardes) : defautBudget;
+    let localUpdate = false;
 
+    function afficherDonnees(data) {
         document.getElementById('revenus-list').innerHTML = '';
         document.getElementById('depenses-list').innerHTML = '';
         document.getElementById('epargne-list').innerHTML = '';
 
-        data.revenus.forEach(item => ajouterLigne('revenus-list', 'rev-amount', item.label, item.amount, false));
-        data.depenses.forEach(item => ajouterLigne('depenses-list', 'dep-amount', item.label, item.amount, false));
-        data.epargne.forEach(item => ajouterLigne('epargne-list', 'ep-amount', item.label, item.amount, false));
+        if (data.revenus) data.revenus.forEach(item => ajouterLigne('revenus-list', 'rev-amount', item.label, item.amount, false));
+        if (data.depenses) data.depenses.forEach(item => ajouterLigne('depenses-list', 'dep-amount', item.label, item.amount, false));
+        if (data.epargne) data.epargne.forEach(item => ajouterLigne('epargne-list', 'ep-amount', item.label, item.amount, false));
 
         calculerBudget(false);
     }
@@ -410,7 +427,10 @@
             });
         });
 
-        localStorage.setItem('monBudgetInteractifData', JSON.stringify(data));
+        localUpdate = true;
+        budgetDocRef.set(data)
+            .then(() => { localUpdate = false; })
+            .catch(err => { console.error("Erreur de sauvegarde:", err); localUpdate = false; });
     }
 
     function ajouterLigne(containerId, inputClass, label, amount, declencherSauvegarde = true) {
@@ -445,7 +465,6 @@
         let totalEpargne = 0;
         document.querySelectorAll('.ep-amount').forEach(input => { totalEpargne += parseFloat(input.value) || 0; });
 
-        // Calcul corrigé : l'éparge globale n'est pas déduite
         const liquidites = totalRevenus - totalDepenses;
 
         document.getElementById('resRevenus').innerText = totalRevenus.toLocaleString('fr-FR') + ' €';
@@ -473,44 +492,16 @@
         }
     }
 
-    window.onload = chargerDonnees;
-</script>
-<!-- Scripts Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-
-<script>
-  // Configuration Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyBd3-uJqgCafCXbyo2UekQCbYP3FaSwYlE",
-    authDomain: "mes-economies-98c27.firebaseapp.com",
-    projectId: "mes-economies-98c27",
-    storageBucket: "mes-economies-98c27.firebasestorage.app",
-    messagingSenderId: "802984844133",
-    appId: "1:802984844133:web:625c3f9b84a8bc3ff7df8c",
-    measurementId: "G-3CERVXG13E"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  const budgetDocRef = db.collection("budgets").doc("mon_budget");
-
-  // Envoi vers Firebase lors des sauvegardes
-  function saveToFirebase(data) {
-    budgetDocRef.set(data, { merge: true })
-      .then(() => console.log("Synchro réussie !"))
-      .catch((err) => console.error("Erreur synchro :", err));
-  }
-
-  // Écoute en direct des changements
-  budgetDocRef.onSnapshot((doc) => {
-    if (doc.exists) {
-      const data = doc.data();
-      if (typeof updateUIFromData === "function") {
-        updateUIFromData(data);
-      }
-    }
-  });
+    // Écouteur en direct de la base Firebase
+    budgetDocRef.onSnapshot((doc) => {
+        if (!localUpdate) {
+            if (doc.exists) {
+                afficherDonnees(doc.data());
+            } else {
+                afficherDonnees(defautBudget);
+            }
+        }
+    });
 </script>
 
 </body>
