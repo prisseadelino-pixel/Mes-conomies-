@@ -277,13 +277,22 @@
                 <div id="revenus-list" class="input-list"></div>
             </div>
 
-            <!-- CARD DÉPENSES -->
+            <!-- CARD DÉPENSES FIXES -->
             <div class="card">
                 <div class="card-header-flex">
-                    <div class="card-title">Dépenses (€)</div>
-                    <button class="btn-add" onclick="ajouterLigne('depenses-list', 'dep-amount', 'Nouvelle dépense', 0)">+</button>
+                    <div class="card-title">Dépenses Fixes (€)</div>
+                    <button class="btn-add" onclick="ajouterLigne('depenses-fixes-list', 'dep-fixe-amount', 'Facture / Loyer', 0)">+</button>
                 </div>
-                <div id="depenses-list" class="input-list"></div>
+                <div id="depenses-fixes-list" class="input-list"></div>
+            </div>
+
+            <!-- CARD DÉPENSES VARIABLES -->
+            <div class="card">
+                <div class="card-header-flex">
+                    <div class="card-title">Dépenses Variables (€)</div>
+                    <button class="btn-add" onclick="ajouterLigne('depenses-variables-list', 'dep-var-amount', 'Courses / Repas', 0)">+</button>
+                </div>
+                <div id="depenses-variables-list" class="input-list"></div>
             </div>
 
             <!-- CARD ÉPARGNÉ -->
@@ -306,8 +315,16 @@
                         <span class="resume-value revenus" id="resRevenus">0 €</span>
                     </div>
                     <div class="resume-row">
-                        <span class="resume-label">DÉPENSES MENSUELLES TOTALES</span>
-                        <span class="resume-value depenses" id="resDepenses">0 €</span>
+                        <span class="resume-label">DÉPENSES FIXES</span>
+                        <span class="resume-value depenses" id="resDepensesFixes">0 €</span>
+                    </div>
+                    <div class="resume-row">
+                        <span class="resume-label">DÉPENSES VARIABLES</span>
+                        <span class="resume-value depenses" id="resDepensesVariables">0 €</span>
+                    </div>
+                    <div class="resume-row" style="border-top: 1px solid #3b4b6b; padding-top: 8px;">
+                        <span class="resume-label" style="font-weight: 600; color: #fff;">TOTAL DÉPENSES</span>
+                        <span class="resume-value depenses" id="resDepensesTotales">0 €</span>
                     </div>
                     <div class="resume-row">
                         <span class="resume-label" style="font-weight: 600; color: #fff;">LIQUIDITÉS (RESTE DU MOIS)</span>
@@ -359,7 +376,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
 <script>
-    // Configuration Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBd3-uJqgCafCXbyo2UekQCbYP3FaSwYlE",
       authDomain: "mes-economies-98c27.firebaseapp.com",
@@ -379,10 +395,12 @@
             { label: "Source de revenu 1", amount: 1650 },
             { label: "Source de revenu 3", amount: 0 }
         ],
-        depenses: [
+        depensesFixes: [
+            { label: "Loyer / Factures", amount: 0 }
+        ],
+        depensesVariables: [
             { label: "Courses", amount: 600 },
-            { label: "Budget repas Boulot", amount: 50 },
-            { label: "Autres dépenses", amount: 0 }
+            { label: "Budget repas Boulot", amount: 50 }
         ],
         epargne: [
             { label: "Livret Developpement Durable", amount: 7796.01 }
@@ -393,18 +411,30 @@
 
     function afficherDonnees(data) {
         document.getElementById('revenus-list').innerHTML = '';
-        document.getElementById('depenses-list').innerHTML = '';
+        document.getElementById('depenses-fixes-list').innerHTML = '';
+        document.getElementById('depenses-variables-list').innerHTML = '';
         document.getElementById('epargne-list').innerHTML = '';
 
         if (data.revenus) data.revenus.forEach(item => ajouterLigne('revenus-list', 'rev-amount', item.label, item.amount, false));
-        if (data.depenses) data.depenses.forEach(item => ajouterLigne('depenses-list', 'dep-amount', item.label, item.amount, false));
+        
+        // Rétrocompatibilité avec l'ancienne version si depensesFixes/Variables n'existent pas encore
+        if (data.depensesFixes) {
+            data.depensesFixes.forEach(item => ajouterLigne('depenses-fixes-list', 'dep-fixe-amount', item.label, item.amount, false));
+        } else if (data.depenses) {
+            data.depenses.forEach(item => ajouterLigne('depenses-fixes-list', 'dep-fixe-amount', item.label, item.amount, false));
+        }
+
+        if (data.depensesVariables) {
+            data.depensesVariables.forEach(item => ajouterLigne('depenses-variables-list', 'dep-var-amount', item.label, item.amount, false));
+        }
+
         if (data.epargne) data.epargne.forEach(item => ajouterLigne('epargne-list', 'ep-amount', item.label, item.amount, false));
 
         calculerBudget(false);
     }
 
     function sauvegarderDonnees() {
-        const data = { revenus: [], depenses: [], epargne: [] };
+        const data = { revenus: [], depensesFixes: [], depensesVariables: [], epargne: [] };
 
         document.querySelectorAll('#revenus-list .input-group').forEach(row => {
             data.revenus.push({
@@ -413,8 +443,15 @@
             });
         });
 
-        document.querySelectorAll('#depenses-list .input-group').forEach(row => {
-            data.depenses.push({
+        document.querySelectorAll('#depenses-fixes-list .input-group').forEach(row => {
+            data.depensesFixes.push({
+                label: row.querySelector('.label-input').value,
+                amount: parseFloat(row.querySelector('.amount-input').value) || 0
+            });
+        });
+
+        document.querySelectorAll('#depenses-variables-list .input-group').forEach(row => {
+            data.depensesVariables.push({
                 label: row.querySelector('.label-input').value,
                 amount: parseFloat(row.querySelector('.amount-input').value) || 0
             });
@@ -459,8 +496,13 @@
         let totalRevenus = 0;
         document.querySelectorAll('.rev-amount').forEach(input => { totalRevenus += parseFloat(input.value) || 0; });
 
-        let totalDepenses = 0;
-        document.querySelectorAll('.dep-amount').forEach(input => { totalDepenses += parseFloat(input.value) || 0; });
+        let totalFixes = 0;
+        document.querySelectorAll('.dep-fixe-amount').forEach(input => { totalFixes += parseFloat(input.value) || 0; });
+
+        let totalVariables = 0;
+        document.querySelectorAll('.dep-var-amount').forEach(input => { totalVariables += parseFloat(input.value) || 0; });
+
+        let totalDepenses = totalFixes + totalVariables;
 
         let totalEpargne = 0;
         document.querySelectorAll('.ep-amount').forEach(input => { totalEpargne += parseFloat(input.value) || 0; });
@@ -468,7 +510,9 @@
         const liquidites = totalRevenus - totalDepenses;
 
         document.getElementById('resRevenus').innerText = totalRevenus.toLocaleString('fr-FR') + ' €';
-        document.getElementById('resDepenses').innerText = totalDepenses.toLocaleString('fr-FR') + ' €';
+        document.getElementById('resDepensesFixes').innerText = totalFixes.toLocaleString('fr-FR') + ' €';
+        document.getElementById('resDepensesVariables').innerText = totalVariables.toLocaleString('fr-FR') + ' €';
+        document.getElementById('resDepensesTotales').innerText = totalDepenses.toLocaleString('fr-FR') + ' €';
         document.getElementById('resEpargne').innerText = totalEpargne.toLocaleString('fr-FR') + ' €';
         document.getElementById('resLiquidites').innerText = liquidites.toLocaleString('fr-FR') + ' €';
 
@@ -492,7 +536,6 @@
         }
     }
 
-    // Écouteur en direct de la base Firebase
     budgetDocRef.onSnapshot((doc) => {
         if (!localUpdate) {
             if (doc.exists) {
