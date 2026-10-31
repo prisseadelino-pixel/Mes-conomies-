@@ -38,7 +38,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
             gap: 12px;
         }
@@ -75,8 +75,9 @@
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 1.1fr 0.9fr;
-            gap: 24px;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: start;
         }
 
         @media (max-width: 850px) {
@@ -88,7 +89,7 @@
         .card {
             background: #242f44;
             border-radius: 12px;
-            padding: 20px;
+            padding: 16px 20px;
             border: 1px solid #2d3a54;
         }
 
@@ -96,7 +97,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .card-title {
@@ -145,14 +146,14 @@
         .input-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
         }
 
         .input-group {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .label-input {
@@ -160,8 +161,8 @@
             background: transparent;
             border: 1px dashed transparent;
             color: #cbd5e1;
-            font-size: 14px;
-            padding: 4px;
+            font-size: 13px;
+            padding: 3px 6px;
             border-radius: 4px;
             outline: none;
             transition: border-color 0.2s, background 0.2s;
@@ -179,14 +180,14 @@
         }
 
         .amount-input {
-            width: 110px;
+            width: 100px;
             background: #121824;
             border: 1px solid #3b4b6b;
             color: #fff;
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-radius: 6px;
             text-align: right;
-            font-size: 14px;
+            font-size: 13px;
             outline: none;
             transition: border-color 0.2s;
         }
@@ -198,45 +199,45 @@
         .resume-block {
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            margin-bottom: 24px;
+            gap: 10px;
+            margin-bottom: 16px;
         }
 
         .resume-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-bottom: 8px;
+            padding-bottom: 6px;
             border-bottom: 1px solid #2d3a54;
         }
 
         .resume-row:last-child {
             border-bottom: none;
             padding-bottom: 0;
-            margin-top: 6px;
+            margin-top: 4px;
         }
 
         .resume-label {
-            font-size: 13px;
+            font-size: 12px;
             color: #94a3b8;
         }
 
         .resume-value {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
         }
 
         .resume-value.revenus { color: #10b981; }
         .resume-value.depenses { color: #ef4444; }
         .resume-value.epargne { color: #3b82f6; }
-        .resume-value.liquidites { font-size: 20px; color: #f59e0b; }
+        .resume-value.liquidites { font-size: 18px; color: #f59e0b; }
 
         .charts-wrapper {
             display: flex;
             justify-content: space-around;
             align-items: center;
-            gap: 16px;
-            margin-top: 10px;
+            gap: 12px;
+            margin-top: 6px;
         }
 
         .chart-box {
@@ -244,13 +245,13 @@
             flex-direction: column;
             align-items: center;
             position: relative;
-            width: 140px;
+            width: 120px;
         }
 
         .chart-container {
             position: relative;
-            width: 130px;
-            height: 130px;
+            width: 110px;
+            height: 110px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -259,11 +260,11 @@
         .chart-center-text {
             position: absolute;
             text-align: center;
-            width: 80px;
+            width: 70px;
         }
 
         .chart-center-text .amount {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 700;
             color: #fff;
             white-space: nowrap;
@@ -272,17 +273,17 @@
         }
 
         .chart-center-text .label {
-            font-size: 10px;
+            font-size: 9px;
             color: #94a3b8;
             text-transform: uppercase;
             margin-top: 2px;
         }
 
         .chart-legend-title {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
             color: #cbd5e1;
-            margin-top: 8px;
+            margin-top: 6px;
             text-align: center;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -292,7 +293,7 @@
             transition: stroke-dasharray 0.3s ease, stroke-dashoffset 0.3s ease;
         }
 
-        /* Classe temporaire masquant les boutons lors de l'impression PDF */
+        /* Masquage des boutons lors de l'export PDF */
         .pdf-export-mode .btn-add,
         .pdf-export-mode .btn-delete,
         .pdf-export-mode .btn-pdf {
@@ -309,7 +310,8 @@
     </div>
 
     <div class="dashboard-grid">
-        <div style="display: flex; flex-direction: column; gap: 20px;">
+        <!-- COLONNE GAUCHE : REVENUS & DÉPENSES -->
+        <div style="display: flex; flex-direction: column; gap: 16px;">
             <!-- CARD REVENUS -->
             <div class="card">
                 <div class="card-header-flex">
@@ -336,21 +338,13 @@
                 </div>
                 <div id="depenses-variables-list" class="input-list"></div>
             </div>
-
-            <!-- CARD ÉPARGNÉ -->
-            <div class="card">
-                <div class="card-header-flex">
-                    <div class="card-title">Capital mis de côté / Épargne Totale (€)</div>
-                    <button class="btn-add" onclick="ajouterLigne('epargne-list', 'ep-amount', 'Nouveau compte', 0)">+</button>
-                </div>
-                <div id="epargne-list" class="input-list"></div>
-            </div>
         </div>
 
-        <!-- RÉSUMÉ & GRAPHES -->
-        <div class="card" style="display: flex; flex-direction: column; justify-content: flex-start;">
-            <div>
-                <div class="card-title" style="margin-bottom: 16px;">Résumé du Budget</div>
+        <!-- COLONNE DROITE : RÉSUMÉ, GRAPHES & ÉPARGNE -->
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+            <!-- RÉSUMÉ & GRAPHES -->
+            <div class="card">
+                <div class="card-title" style="margin-bottom: 12px;">Résumé du Budget</div>
                 <div class="resume-block">
                     <div class="resume-row">
                         <span class="resume-label">REVENU MENSUEL TOTAL</span>
@@ -364,7 +358,7 @@
                         <span class="resume-label">DÉPENSES VARIABLES</span>
                         <span class="resume-value depenses" id="resDepensesVariables">0 €</span>
                     </div>
-                    <div class="resume-row" style="border-top: 1px solid #3b4b6b; padding-top: 8px;">
+                    <div class="resume-row" style="border-top: 1px solid #3b4b6b; padding-top: 6px;">
                         <span class="resume-label" style="font-weight: 600; color: #fff;">TOTAL DÉPENSES</span>
                         <span class="resume-value depenses" id="resDepensesTotales">0 €</span>
                     </div>
@@ -372,42 +366,51 @@
                         <span class="resume-label" style="font-weight: 600; color: #fff;">LIQUIDITÉS (RESTE DU MOIS)</span>
                         <span class="resume-value liquidites" id="resLiquidites">0 €</span>
                     </div>
-                    <div class="resume-row" style="margin-top: 10px; border-top: 1px dashed #3b4b6b; padding-top: 10px;">
+                    <div class="resume-row" style="margin-top: 6px; border-top: 1px dashed #3b4b6b; padding-top: 6px;">
                         <span class="resume-label">CAPITAL ÉPARGNÉ TOTAL (INDICATIF)</span>
                         <span class="resume-value epargne" id="resEpargne">0 €</span>
                     </div>
                 </div>
+
+                <div class="charts-wrapper">
+                    <div class="chart-box">
+                        <div class="chart-container">
+                            <svg width="100" height="100" viewBox="0 0 42 42">
+                                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#121824" stroke-width="4.5"></circle>
+                                <circle id="chart1Depenses" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#ef4444" stroke-width="4.5" stroke-dasharray="0 100" stroke-dashoffset="25"></circle>
+                                <circle id="chart1Reste" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#10b981" stroke-width="4.5" stroke-dasharray="0 100" stroke-dashoffset="25"></circle>
+                            </svg>
+                            <div class="chart-center-text">
+                                <div class="amount" id="centerChart1">0 €</div>
+                                <div class="label">Reste</div>
+                            </div>
+                        </div>
+                        <div class="chart-legend-title">Dépenses / Revenus</div>
+                    </div>
+
+                    <div class="chart-box">
+                        <div class="chart-container">
+                            <svg width="100" height="100" viewBox="0 0 42 42">
+                                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#121824" stroke-width="4.5"></circle>
+                                <circle id="chart2Epargne" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#3b82f6" stroke-width="4.5" stroke-dasharray="100 0" stroke-dashoffset="25"></circle>
+                            </svg>
+                            <div class="chart-center-text">
+                                <div class="amount" id="centerChart2">0 €</div>
+                                <div class="label">Totalisé</div>
+                            </div>
+                        </div>
+                        <div class="chart-legend-title">Capital Épargné</div>
+                    </div>
+                </div>
             </div>
 
-            <div class="charts-wrapper">
-                <div class="chart-box">
-                    <div class="chart-container">
-                        <svg width="120" height="120" viewBox="0 0 42 42">
-                            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#121824" stroke-width="4.5"></circle>
-                            <circle id="chart1Depenses" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#ef4444" stroke-width="4.5" stroke-dasharray="0 100" stroke-dashoffset="25"></circle>
-                            <circle id="chart1Reste" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#10b981" stroke-width="4.5" stroke-dasharray="0 100" stroke-dashoffset="25"></circle>
-                        </svg>
-                        <div class="chart-center-text">
-                            <div class="amount" id="centerChart1">0 €</div>
-                            <div class="label">Reste</div>
-                        </div>
-                    </div>
-                    <div class="chart-legend-title">Dépenses / Revenus</div>
+            <!-- CARD ÉPARGNÉ PLACÉE SOUS LES CERCLES -->
+            <div class="card">
+                <div class="card-header-flex">
+                    <div class="card-title">Capital mis de côté / Épargne Totale (€)</div>
+                    <button class="btn-add" onclick="ajouterLigne('epargne-list', 'ep-amount', 'Nouveau compte', 0)">+</button>
                 </div>
-
-                <div class="chart-box">
-                    <div class="chart-container">
-                        <svg width="120" height="120" viewBox="0 0 42 42">
-                            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#121824" stroke-width="4.5"></circle>
-                            <circle id="chart2Epargne" cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#3b82f6" stroke-width="4.5" stroke-dasharray="100 0" stroke-dashoffset="25"></circle>
-                        </svg>
-                        <div class="chart-center-text">
-                            <div class="amount" id="centerChart2">0 €</div>
-                            <div class="label">Totalisé</div>
-                        </div>
-                    </div>
-                    <div class="chart-legend-title">Capital Épargné</div>
-                </div>
+                <div id="epargne-list" class="input-list"></div>
             </div>
         </div>
     </div>
@@ -577,15 +580,13 @@
         }
     }
 
-    // Fonction de génération PDF
+    // Export PDF optimisé pour tenir sur une page A4
     function exporterPDF() {
         const element = document.getElementById('budget-container');
-        
-        // Masquer temporairement les boutons pour un rendu PDF plus propre
         element.classList.add('pdf-export-mode');
 
         const opt = {
-            margin:       10,
+            margin:       [8, 8, 8, 8],
             filename:     'Mon_Budget_Personnel.pdf',
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { scale: 2, useCORS: true },
